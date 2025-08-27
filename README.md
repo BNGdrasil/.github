@@ -1,4 +1,4 @@
-# BNGdrasil
+# BNGdrasil (BNbong + ygGdrasil)
 
 bnbong 클라우드 허브 프로젝트
 
