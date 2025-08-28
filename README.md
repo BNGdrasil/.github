@@ -1,5 +1,5 @@
 <p align="center">
-    <img align="top" width="70%" src="/images/BNGdrasil.png" alt="BNGdrasil"/>
+    <img align="top" width="30%" src="/images/BNGdrasil.png" alt="BNGdrasil"/>
 </p>
 
 <br>
