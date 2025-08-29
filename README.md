@@ -15,15 +15,15 @@ bnbong 클라우드 허브 프로젝트
 
 ## Architecture
 
-(MSA 구조도 추가 예정)
+![architecture](./images/bngdrasil-infra.png)
 
 ## Stack
 
 > [!TIP]
  > 세부 Stack은 수정사항 있을 시, 반영
 
-- **Cloud**: OCI + Terraform IaC
-- **Deployment**: Docker Compose
+- **Cloud**: OCI + Terraform IaC -> OpenStack (홈 랩 HW 구성 완료 시 마이그레이션)
+- **Deployment**: Docker Compose + (k8s)
 - **API Gateway (Bifrost)**: FastAPI + Python 3.12+
 - **Auth Server**: FastAPI + Python 3.12+ + JWT + PostgreSQL
 - **Client (Portfolio + Admin)**: React + TypeScript + Vite + Tailwind CSS
@@ -31,8 +31,8 @@ bnbong 클라우드 허브 프로젝트
 - **Database**: PostgreSQL + Redis
 - **Reverse Proxy**: Nginx
 - **SSL**: Cloudflare (자동 SSL 인증서 관리)
-- **CI/CD**: GitHub Actions (예정)
-- **Monitoring**: Prometheus + Grafana (예정)
+- **CI/CD**: GitHub Actions + (Jenkins)
+- **Monitoring**: Prometheus + Grafana + loki
 
 ## 주요 기능
 
