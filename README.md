@@ -2,11 +2,30 @@
     <img align="top" width="30%" src="/images/BNGdrasil.png" alt="BNGdrasil"/>
 </p>
 
-<br>
+<div align="center">
 
 # BNGdrasil (BNbong + Yggdrasil)
 
-A personal cloud nation infrastructure project by *bnbong*
+**A comprehensive cloud infrastructure project**
+
+[![Python](https://img.shields.io/badge/Python-3.12+-3776ab?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=white)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
+[![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white)](https://www.terraform.io)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io)
+[![Nginx](https://img.shields.io/badge/Nginx-009639?style=flat-square&logo=nginx&logoColor=white)](https://nginx.org)
+
+*A personal cloud nation infrastructure project by [bnbong](https://github.com/bnbong) - A comprehensive cloud infrastructure project*
+
+</div>
+
+---
+
+## Overview
 
 BNGdrasil is a comprehensive cloud ecosystem that integrates personal portfolio, game platform, API services, and authentication systems. All infrastructure is managed through **Infrastructure as Code (IaC)** principles, designed to operate seamlessly across global cloud environments (Oracle Cloud, AWS, Azure) and future home lab (OpenStack-based) environments.
 
@@ -21,37 +40,37 @@ Each sub-project in BNGdrasil combines **bnbong's name + Norse mythology/concept
 1. **🏗️ [Baedalus (IaC)](https://github.com/BNGdrasil/Baedalus)**
    - Terraform-based infrastructure code project
    - Declarative management of CSP environments (Oracle Cloud, etc.) and home lab (OpenStack) infrastructure
-   - (bnbong + Daedalus)
+   - (bnbong + Daedalus, architect and craftsman of Greek mythology)
 
 2. **🌐 [Bsgard (Custom VPC)](https://github.com/BNGdrasil/Bsgard)**
    - Custom network project wrapping OpenStack Neutron functionality
    - Provides VPC-like features for CSP environments
    - Manages VM resource placement in home lab environment with Public/Private Subnet architecture
-   - (bnbong + Asgard)
+   - (bnbong + Asgard, gods' location in Nordic mythology)
 
 3. **🌉 [Bifrost (API Gateway)](https://github.com/BNGdrasil/Bifrost)**
    - FastAPI-based API Gateway service
    - API service routing, logging, authentication/authorization (JWT, API Key)
    - Admin UI integration for service registration and management
-   - (bnbong + Bifrost)
+   - (bnbong + Bifrost, bridge between the gods and humans in Norse mythology)
 
 4. **🔐 [Bidar (Auth Server)](https://github.com/BNGdrasil/Bidar)**
    - FastAPI-based authentication server
    - JWT-based authentication/authorization, Superuser management
    - PostgreSQL/Redis integration for user and session management
-   - (bnbong + Vidar)
+   - (bnbong + Vidar, god of vengeance and guardian of silence)
 
 5. **🎨 [Bantheon (Web Client + Portfolio)](https://github.com/BNGdrasil/Bantheon)**
    - React-based static frontend
    - Portfolio pages and Admin Client functionality
    - Integration with API Gateway and Auth Server for administrative operations
-   - (bnbong + Pantheon)
+   - (bnbong + Pantheon, temple of the gods from ancient Greek)
 
 6. **🎮 [Blysium (Game Platform)](https://github.com/BNGdrasil/Blysium)**
    - React-based static frontend
    - Platform for browser-executable games collection
    - Minimal user management, focused on game execution and selection
-   - (bnbong + Elysium)
+   - (bnbong + Elysium, paradise of the blessed of Greek religious cult)
 
 ## Architecture
 
