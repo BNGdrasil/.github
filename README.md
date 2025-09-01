@@ -4,7 +4,7 @@
 
 <div align="center">
 
-# BNGdrasil (BNbong + Yggdrasil)
+# BNGdrasil (BNbong + ygGdrasil)
 
 **A comprehensive cloud infrastructure project**
 
