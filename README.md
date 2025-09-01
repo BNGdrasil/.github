@@ -4,152 +4,143 @@
 
 <br>
 
-# BNGdrasil (BNbong + ygGdrasil)
+# BNGdrasil (BNbong + Yggdrasil)
 
-bnbong 클라우드 허브 프로젝트
+A personal cloud nation infrastructure project by *bnbong*
 
-- `bnbong.xyz` : bnbong의 개인 포트폴리오 사이트 -> [Bantheon](https://github.com/BNGdrasil/Bantheon)
-- `playground.bnbong.xyz` : bnbong이 개발한 웹 게임 모음 플랫폼 -> [Blysium](https://github.com/BNGdrasil/Blysium)
-- `api.bnbong.xyz` : bnbong이 개발한 backend API 게이트웨이, Bifrost (하위 API 서버 프록시) -> [Bifrost](https://github.com/BNGdrasil/Bifrost)
-- `auth.bnbong.xyz` : backend Auth Server, Bidar (사용자 인증 서버) -> [Bidar](https://github.com/BNGdrasil/Bidar)
+BNGdrasil is a comprehensive cloud ecosystem that integrates personal portfolio, game platform, API services, and authentication systems. All infrastructure is managed through **Infrastructure as Code (IaC)** principles, designed to operate seamlessly across global cloud environments (Oracle Cloud, AWS, Azure) and future home lab (OpenStack-based) environments.
+
+## Project Naming Convention
+
+Each sub-project in BNGdrasil combines **bnbong's name + Norse mythology/concepts**:
+
+- **BNGdrasil (Main Project)**: The overarching project name (bnbong + Yggdrasil, the World Tree)
+
+### Sub-projects
+
+1. **🏗️ [Baedalus (IaC)](https://github.com/BNGdrasil/Baedalus)**
+   - Terraform-based infrastructure code project
+   - Declarative management of CSP environments (Oracle Cloud, etc.) and home lab (OpenStack) infrastructure
+   - (bnbong + Daedalus)
+
+2. **🌐 [Bsgard (Custom VPC)](https://github.com/BNGdrasil/Bsgard)**
+   - Custom network project wrapping OpenStack Neutron functionality
+   - Provides VPC-like features for CSP environments
+   - Manages VM resource placement in home lab environment with Public/Private Subnet architecture
+   - (bnbong + Asgard)
+
+3. **🌉 [Bifrost (API Gateway)](https://github.com/BNGdrasil/Bifrost)**
+   - FastAPI-based API Gateway service
+   - API service routing, logging, authentication/authorization (JWT, API Key)
+   - Admin UI integration for service registration and management
+   - (bnbong + Bifrost)
+
+4. **🔐 [Bidar (Auth Server)](https://github.com/BNGdrasil/Bidar)**
+   - FastAPI-based authentication server
+   - JWT-based authentication/authorization, Superuser management
+   - PostgreSQL/Redis integration for user and session management
+   - (bnbong + Vidar)
+
+5. **🎨 [Bantheon (Web Client + Portfolio)](https://github.com/BNGdrasil/Bantheon)**
+   - React-based static frontend
+   - Portfolio pages and Admin Client functionality
+   - Integration with API Gateway and Auth Server for administrative operations
+   - (bnbong + Pantheon)
+
+6. **🎮 [Blysium (Game Platform)](https://github.com/BNGdrasil/Blysium)**
+   - React-based static frontend
+   - Platform for browser-executable games collection
+   - Minimal user management, focused on game execution and selection
+   - (bnbong + Elysium)
 
 ## Architecture
 
-![architecture](./images/bngdrasil-infra.png)
+![BNGdrasil Infrastructure](./images/bngdrasil-infra.png)
 
-## Stack
+### Network and VM Layout
 
-> [!TIP]
- > 세부 Stack은 수정사항 있을 시, 반영
-
-- **Cloud**: OCI + Terraform IaC -> OpenStack (홈 랩 HW 구성 완료 시 마이그레이션)
-- **Deployment**: Docker Compose + (k8s)
-- **API Gateway (Bifrost)**: FastAPI + Python 3.12+
-- **Auth Server**: FastAPI + Python 3.12+ + JWT + PostgreSQL
-- **Client (Portfolio + Admin)**: React + TypeScript + Vite + Tailwind CSS
-- **Playground**: React + TypeScript + Vite + Framer Motion
-- **Database**: PostgreSQL + Redis
-- **Reverse Proxy**: Nginx
-- **SSL**: Cloudflare (자동 SSL 인증서 관리)
-- **CI/CD**: GitHub Actions + (Jenkins)
-- **Monitoring**: Prometheus + Grafana + loki
-
-## 주요 기능
-
-### Bifrost (API Gateway)
-
-- ✅ 동적 서비스 라우팅
-- ✅ 요청/응답 로깅
-- ✅ 레이트 리미팅
-- ✅ 헬스 체크
-- ✅ 관리자 API (서비스 등록/제거)
-
-### Bidar (Auth Server)
-
-- ✅ JWT 기반 인증
-- ✅ 사용자 등록/로그인
-- ✅ 토큰 갱신
-- ✅ API 키 관리
-- ✅ 슈퍼유저 권한 관리
-
-### Bantheon (Portfolio + Admin client)
-
-- ✅ 포트폴리오 사이트
-- ✅ 관리자 패널 (예정)
-- ✅ 반응형 디자인
-- ✅ SEO 최적화
-
-### Blysium (Playground)
-
-- ✅ 게임 컬렉션 플랫폼
-- ✅ 사용자 인증
-- ✅ 게임 점수 관리 (예정)
-- ✅ 실시간 게임 (예정)
-
-## 프로덕션 배포
-
-자세한 배포 가이드는 [DEPLOYMENT.md](./DEPLOYMENT.md)를 참조하세요.
-
-```bash
-# 1. 인프라 배포
-cd baedalus
-terraform init
-terraform apply
-
-# 2. 애플리케이션 배포 (자동화된 스크립트 사용)
-chmod +x baedalus/scripts/deploy.sh
-./baedalus/scripts/deploy.sh [서버_IP] ubuntu
-
-# 또는 수동 배포
-rsync -avz --exclude='.git' --exclude='node_modules' . ubuntu@[서버_IP]:/opt/bnbong/
-ssh ubuntu@[서버_IP] 'cd /opt/bnbong && docker-compose up -d --build' # 예시
+```mermaid
+graph TB
+    subgraph "Public Subnet"
+        VM1[Nginx Proxy Manager<br/>Cloudflare Integration]
+        VM2[Bifrost API Gateway<br/>Bidar Auth Server]
+        VM3[Bantheon Portfolio/Admin<br/>Blysium Game Platform]
+    end
+    
+    subgraph "Private Subnet"
+        VM4[PostgreSQL<br/>Redis]
+        VM5[Prometheus<br/>Grafana<br/>Loki]
+        VM6[Backend API Services<br/>qshing-server, hello, etc.]
+    end
+    
+    Cloudflare[Cloudflare DNS & Proxy + WAF] --> VM1
+    VM1 --> VM2
+    VM1 --> VM3
+    VM2 --> VM4
+    VM2 --> VM6
+    VM3 --> VM2
+    VM5 --> VM4
+    VM5 --> VM6
 ```
 
-## API 엔드포인트
+## Technology Stack
 
-> [!TIP]
- > API endpoint에 수정사항 있을 시, 반영
+- **Backend (API Gateway, Auth Server)**: Python 3.12+ (FastAPI)
+- **Frontend (Portfolio, Game Platform, Admin UI)**: React (Vite-based)
+- **Infrastructure as Code**: Terraform
+- **Containerization**: Docker, Docker Compose (→ Kubernetes scalable)
+- **Database & Cache**: PostgreSQL, Redis
+- **Monitoring**: Prometheus, Grafana, Loki
+- **DNS & Proxy**: Cloudflare + Nginx Proxy Manager
+- **Cloud / Virtualization**: Oracle Cloud → OpenStack (Home Lab)
 
-### Bifrost (api.bnbong.xyz)
+## Security & Access Control
 
-- `GET /health` - 서비스 상태 확인
-- `GET /services` - 등록된 서비스 목록
-- `GET /services/{service_name}/health` - 서비스 헬스 체크
-- `/{service_name}/{path}` - 서비스 프록시
+- **Public Services Protection**: Cloudflare DNS & Proxy + WAF
+- **Private Subnet Isolation**: External access restricted (VPN/Bastion Host only)
+- **Service Deployment**: Docker Compose-based VM deployment (Kubernetes expansion planned)
 
-### Bidar (auth.bnbong.xyz)
+## Development Roadmap
 
-#### 인증 (Authentication)
+### Phase 1: Core Infrastructure ✅
+- [x] Project structure design
+- [x] Docker Compose configuration
+- [x] Terraform infrastructure code
+- [x] API Gateway implementation
+- [x] Auth Server implementation
 
-- `POST /auth/register` - 회원가입
-- `POST /auth/login` - 로그인
-- `POST /auth/refresh` - 토큰 갱신
-- `POST /auth/logout` - 로그아웃
+### Phase 2: Frontend Development
+- [ ] React client implementation
+- [ ] Portfolio website
+- [ ] Admin panel
+- [ ] Playground platform
 
-#### 사용자 관리 (Users)
+### Phase 3: Game Integration
+- [ ] Pygame web conversion (Priority: [선새임 몰래 춤추기](https://github.com/bnbong/rickTcal_Game))
+- [ ] Game execution engine
+- [ ] Score system
+- [ ] Leaderboard
 
-- `GET /users/me` - 현재 사용자 정보 조회
-- `PUT /users/me` - 사용자 정보 수정
-- `DELETE /users/me` - 계정 삭제
+### Phase 4: Advanced Features
+- [ ] Monitoring system
+- [ ] CI/CD pipeline
+- [ ] Backup system
+- [ ] Performance optimization
 
-#### 헬스 체크 (Health Check)
+## Future Expansion Plans
 
-- `GET /health` - 서비스 상태 확인
+- **API Gateway (Bifrost)**: Service registration automation, API Key issuance, Rate Limiting
+- **Auth Server (Bidar)**: OIDC integration, Role-based access control
+- **Bantheon**: Project showcase additions, admin dashboard expansion
+- **Blysium**: Simple ranking/score system implementation
+- **Baedalus**: Multi-CSP support (easy migration to AWS, Azure)
+- **Bsgard**: OpenStack Neutron-based API wrapper completion for CSP-like VPC functionality
 
-(추가 & 수정 예정)
+## Development Guide
 
-## 개발 가이드
+- [UV Package Manager Guide](./UV_GUIDE.md) - FastAPI service development environment setup
+- [Deployment Guide](./DEPLOYMENT.md) - Production deployment methods
 
-- [UV 패키지 매니저 사용법](./UV_GUIDE.md) - FastAPI 서비스 개발 환경 설정
-- [배포 가이드](./DEPLOYMENT.md) - 프로덕션 배포 방법
+---
 
-## 개발 로드맵
-
-### Phase 1: 기본 인프라
-
-- [x] 프로젝트 구조 설계
-- [x] Docker Compose 설정
-- [x] Terraform 인프라 코드
-- [x] API Gateway 구현
-- [x] Auth Server 구현
-
-### Phase 2: 프론트엔드 개발
-
-- [ ] React 클라이언트 구현
-- [ ] 포트폴리오 사이트
-- [ ] 관리자 패널
-- [ ] Playground 플랫폼
-
-### Phase 3: 게임 통합
-
-- [ ] Pygame 웹 변환 ([선새임 몰래 춤추기](https://github.com/bnbong/rickTcal_Game) 우선)
-- [ ] 게임 실행 엔진
-- [ ] 점수 시스템
-- [ ] 리더보드
-
-### Phase 4: 고급 기능
-
-- [ ] 모니터링 시스템
-- [ ] CI/CD 파이프라인
-- [ ] 백업 시스템
-- [ ] 성능 최적화
+*BNGdrasil - Building a personal cloud nation, one service at a time.*
