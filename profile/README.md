@@ -157,8 +157,8 @@ graph TB
 
 ## Development Guide
 
-- [UV Package Manager Guide](./UV_GUIDE.md) - FastAPI service development environment setup
-- [Deployment Guide](./DEPLOYMENT.md) - Production deployment methods
+- [UV Package Manager Guide](../UV_GUIDE.md) - FastAPI service development environment setup
+- [Deployment Guide](../DEPLOYMENT.md) - Production deployment methods
 
 ---
 
