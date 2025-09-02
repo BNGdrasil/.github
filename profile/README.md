@@ -74,7 +74,7 @@ Each sub-project in BNGdrasil combines **bnbong's name + Norse mythology/concept
 
 ## Architecture
 
-![BNGdrasil Infrastructure](./images/bngdrasil-infra.png)
+![BNGdrasil Infrastructure](../images/bngdrasil-infra.png)
 
 ### Network and VM Layout
 
