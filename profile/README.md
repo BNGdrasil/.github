@@ -76,31 +76,42 @@ Each sub-project in BNGdrasil combines **bnbong's name + Norse mythology/concept
 
 ![BNGdrasil Infrastructure](../images/bngdrasil-infra.png)
 
-### Network and VM Layout
+### Multi-Region Architecture
 
+**Chuncheon Region (Main Services):**
 ```mermaid
 graph TB
-    subgraph "Public Subnet"
-        VM1[Nginx Proxy Manager<br/>Cloudflare Integration]
-        VM2[Bifrost API Gateway<br/>Bidar Auth Server]
-        VM3[Bantheon Portfolio/Admin<br/>Blysium Game Platform]
+    subgraph "Chuncheon - Public Subnet"
+        VM1[VM1: Client<br/>Nginx Reverse Proxy<br/>Static Files]
+        VM2[VM2: Core APIs<br/>Bifrost Gateway + Bidar Auth<br/>2 OCPU, 12GB]
     end
     
-    subgraph "Private Subnet"
-        VM4[PostgreSQL<br/>Redis]
-        VM5[Prometheus<br/>Grafana<br/>Loki]
-        VM6[Backend API Services<br/>qshing-server, hello, etc.]
+    subgraph "Chuncheon - Private Subnet"
+        VM3[VM3: Database<br/>PostgreSQL + Redis + MongoDB<br/>1 OCPU, 6GB, 80GB]
     end
     
-    Cloudflare[Cloudflare DNS & Proxy + WAF] --> VM1
+    Cloudflare[Cloudflare DNS & WAF] --> VM1
     VM1 --> VM2
-    VM1 --> VM3
-    VM2 --> VM4
-    VM2 --> VM6
-    VM3 --> VM2
-    VM5 --> VM4
-    VM5 --> VM6
+    VM2 --> VM3
 ```
+
+**Osaka Region (Monitoring & Backup):**
+```mermaid
+graph TB
+    subgraph "Osaka - Private Subnet"
+        VM4[VM4: Monitoring<br/>Prometheus + Grafana + Loki<br/>1 OCPU, 6GB, 80GB]
+        VM5[VM5: Backup<br/>Long-term Storage<br/>2 OCPU, 12GB, 70GB]
+        VM6[VM6: Playground<br/>Development Environment<br/>1 OCPU, 6GB]
+    end
+    
+    VM4 -.Monitor.-> Chuncheon
+    VM5 -.Backup.-> Chuncheon
+```
+
+**Cross-Region Communication:**
+- VCN Remote Peering Connection (RPC) between Chuncheon and Osaka
+- Zero data transfer costs (within same OCI tenancy)
+- Main services in Chuncheon minimize cross-region traffic
 
 ## Technology Stack
 
@@ -154,11 +165,6 @@ graph TB
 - **Blysium**: Simple ranking/score system implementation
 - **Baedalus**: Multi-CSP support (easy migration to AWS, Azure)
 - **Bsgard**: OpenStack Neutron-based API wrapper completion for CSP-like VPC functionality
-
-## Development Guide
-
-- [UV Package Manager Guide](../UV_GUIDE.md) - FastAPI service development environment setup
-- [Deployment Guide](../DEPLOYMENT.md) - Production deployment methods
 
 ---
 
