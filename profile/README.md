@@ -27,7 +27,7 @@
 
 ## Overview
 
-BNGdrasil is a comprehensive cloud ecosystem that integrates personal portfolio, game platform, API services, and authentication systems. All infrastructure is managed through **Infrastructure as Code (IaC)** principles, designed to operate seamlessly across global cloud environments (Oracle Cloud, AWS, Azure) and future home lab (OpenStack-based) environments.
+BNGdrasil is a comprehensive cloud ecosystem that integrates a personal portfolio, API services, authentication systems, and infrastructure automation. All infrastructure is managed through **Infrastructure as Code (IaC)** principles, designed to operate seamlessly across global cloud environments (Oracle Cloud, AWS, Azure) and future home lab (OpenStack-based) environments.
 
 ## Project Naming Convention
 
@@ -66,12 +66,6 @@ Each sub-project in BNGdrasil combines **bnbong's name + Norse mythology/concept
    - Integration with API Gateway and Auth Server for administrative operations
    - (bnbong + Pantheon, temple of the gods from ancient Greek)
 
-6. **🎮 [Blysium (Game Platform)](https://github.com/BNGdrasil/Blysium)**
-   - React-based static frontend
-   - Platform for browser-executable games collection
-   - Minimal user management, focused on game execution and selection
-   - (bnbong + Elysium, paradise of the blessed of Greek religious cult)
-
 ## Architecture
 
 ![BNGdrasil Infrastructure](../images/bngdrasil-infra.png)
@@ -101,7 +95,7 @@ graph TB
     subgraph "Osaka - Private Subnet"
         VM4[VM4: Monitoring<br/>Prometheus + Grafana + Loki<br/>1 OCPU, 6GB, 80GB]
         VM5[VM5: Backup<br/>Long-term Storage<br/>2 OCPU, 12GB, 70GB]
-        VM6[VM6: Playground<br/>Development Environment<br/>1 OCPU, 6GB]
+        VM6[VM6: Sandbox<br/>Development Environment<br/>1 OCPU, 6GB]
     end
     
     VM4 -.Monitor.-> Chuncheon
@@ -116,7 +110,7 @@ graph TB
 ## Technology Stack
 
 - **Backend (API Gateway, Auth Server)**: Python 3.12+ (FastAPI)
-- **Frontend (Portfolio, Game Platform, Admin UI)**: React (Vite-based)
+- **Frontend (Portfolio, Admin UI)**: React (Vite-based)
 - **Infrastructure as Code**: Terraform
 - **Containerization**: Docker, Docker Compose (→ Kubernetes scalable)
 - **Database & Cache**: PostgreSQL, Redis
@@ -143,15 +137,8 @@ graph TB
 - [ ] React client implementation
 - [ ] Portfolio website
 - [ ] Admin panel
-- [ ] Playground platform
 
-### Phase 3: Game Integration
-- [ ] Pygame web conversion (Priority: [선새임 몰래 춤추기](https://github.com/bnbong/rickTcal_Game))
-- [ ] Game execution engine
-- [ ] Score system
-- [ ] Leaderboard
-
-### Phase 4: Advanced Features
+### Phase 3: Advanced Features
 - [ ] Monitoring system
 - [ ] CI/CD pipeline
 - [ ] Backup system
@@ -162,7 +149,6 @@ graph TB
 - **API Gateway (Bifrost)**: Service registration automation, API Key issuance, Rate Limiting
 - **Auth Server (Bidar)**: OIDC integration, Role-based access control
 - **Bantheon**: Project showcase additions, admin dashboard expansion
-- **Blysium**: Simple ranking/score system implementation
 - **Baedalus**: Multi-CSP support (easy migration to AWS, Azure)
 - **Bsgard**: OpenStack Neutron-based API wrapper completion for CSP-like VPC functionality
 
