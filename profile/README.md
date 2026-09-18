@@ -6,7 +6,7 @@
 
 # BNGdrasil (BNbong + ygGdrasil)
 
-**A comprehensive cloud infrastructure project**
+**A personal cloud infrastructure project**
 
 [![Python](https://img.shields.io/badge/Python-3.12+-3776ab?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
@@ -19,7 +19,7 @@
 [![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io)
 [![Nginx](https://img.shields.io/badge/Nginx-009639?style=flat-square&logo=nginx&logoColor=white)](https://nginx.org)
 
-*A personal cloud nation infrastructure project by [bnbong](https://github.com/bnbong) - A comprehensive cloud infrastructure project*
+*A personal cloud infrastructure project by [bnbong](https://github.com/bnbong)*
 
 </div>
 
@@ -27,131 +27,125 @@
 
 ## Overview
 
-BNGdrasil is a comprehensive cloud ecosystem that integrates a personal portfolio, API services, authentication systems, and infrastructure automation. All infrastructure is managed through **Infrastructure as Code (IaC)** principles, designed to operate seamlessly across global cloud environments (Oracle Cloud, AWS, Azure) and future home lab (OpenStack-based) environments.
+BNGdrasil is a personal cloud ecosystem that brings together a portfolio site, an API gateway, an authentication server, and the infrastructure code that provisions them. Infrastructure is described with Terraform and the services run as Docker Compose stacks on Oracle Cloud VMs in the Chuncheon region.
+
+The project is actively operated, and parts of it are still being built. Where a component is planned rather than running, this page says so.
 
 ## Project Naming Convention
 
-Each sub-project in BNGdrasil combines **bnbong's name + Norse mythology/concepts**:
-
-- **BNGdrasil (Main Project)**: The overarching project name (bnbong + Yggdrasil, the World Tree)
+Each sub-project combines **bnbong's name with a figure or place from Norse and Greek mythology**. The umbrella name comes from Yggdrasil, the World Tree.
 
 ### Sub-projects
 
-1. **🏗️ [Baedalus (IaC)](https://github.com/BNGdrasil/Baedalus)**
-   - Terraform-based infrastructure code project
-   - Declarative management of CSP environments (Oracle Cloud, etc.) and home lab (OpenStack) infrastructure
-   - (bnbong + Daedalus, architect and craftsman of Greek mythology)
+1. **[Baedalus (Infrastructure as Code)](https://github.com/BNGdrasil/Baedalus)**
+   - Terraform code for the Oracle Cloud tenancy: networks, instances, bootstrap scripts, and the deployment and backup tooling that runs against them.
+   - Also holds the deployment baseline that records what is actually running on each VM.
+   - (bnbong + Daedalus, the craftsman of Greek mythology)
 
-2. **🌐 [Bsgard (Custom VPC)](https://github.com/BNGdrasil/Bsgard)**
-   - Custom network project wrapping OpenStack Neutron functionality
-   - Provides VPC-like features for CSP environments
-   - Manages VM resource placement in home lab environment with Public/Private Subnet architecture
-   - (bnbong + Asgard, gods' location in Nordic mythology)
+2. **[Bifrost (API Gateway)](https://github.com/BNGdrasil/Bifrost)**
+   - FastAPI service that routes requests to registered backend services and exposes the admin API used by the dashboard.
+   - The service registry lives in PostgreSQL. Administrative permissions are verified against Bidar.
+   - (bnbong + Bifröst, the bridge between gods and humans in Norse mythology)
 
-3. **🌉 [Bifrost (API Gateway)](https://github.com/BNGdrasil/Bifrost)**
-   - FastAPI-based API Gateway service
-   - API service routing, logging, authentication/authorization (JWT, API Key)
-   - Admin UI integration for service registration and management
-   - (bnbong + Bifrost, bridge between the gods and humans in Norse mythology)
+3. **[Bidar (Auth Server)](https://github.com/BNGdrasil/Bidar)**
+   - FastAPI authentication server issuing JWT access tokens, with role based access control and PostgreSQL backed user storage.
+   - API key models exist in the schema, but issuing, verifying, and revoking keys is not finished, so API keys are not a protection mechanism yet.
+   - (bnbong + Víðarr, god of vengeance and silence)
 
-4. **🔐 [Bidar (Auth Server)](https://github.com/BNGdrasil/Bidar)**
-   - FastAPI-based authentication server
-   - JWT-based authentication/authorization, Superuser management
-   - PostgreSQL/Redis integration for user and session management
-   - (bnbong + Vidar, god of vengeance and guardian of silence)
+4. **[Bantheon (Web Client and Admin Panel)](https://github.com/BNGdrasil/Bantheon)**
+   - React and Vite frontend: the public portfolio site, the admin dashboard, and the Nginx configuration that serves both.
+   - (bnbong + Pantheon, the temple of all gods)
 
-5. **🎨 [Bantheon (Web Client + Portfolio)](https://github.com/BNGdrasil/Bantheon)**
-   - React-based static frontend
-   - Portfolio pages and Admin Client functionality
-   - Integration with API Gateway and Auth Server for administrative operations
-   - (bnbong + Pantheon, temple of the gods from ancient Greek)
+5. **[Bsgard (Custom VPC)](https://github.com/BNGdrasil/Bsgard)** (*planned, not started*)
+   - An intended wrapper around OpenStack Neutron that would provide VPC-like networking for a future home lab.
+   - The repository is currently empty. Work on it is deferred until there is a real home lab requirement.
+   - (bnbong + Asgard, the realm of the gods)
 
 ## Architecture
 
 ![BNGdrasil Infrastructure](../images/bngdrasil-infra.png)
 
-### Multi-Region Architecture
+> The diagram above shows the original design. The deployment described below is the current one, and the two differ in several places.
 
-**Chuncheon Region (Main Services):**
+### Current deployment (Chuncheon region)
+
 ```mermaid
 graph TB
-    subgraph "Chuncheon - Public Subnet"
-        VM1[VM1: Client<br/>Nginx Reverse Proxy<br/>Static Files]
-        VM2[VM2: Core APIs<br/>Bifrost Gateway + Bidar Auth<br/>2 OCPU, 12GB]
+    CF[Cloudflare DNS and Proxy]
+
+    subgraph Public["Chuncheon - Public Subnet"]
+        VM1["VM1<br/>Nginx entry point<br/>static sites"]
+        VM2["VM2<br/>Bifrost gateway, Bidar auth<br/>Wegis, Overlock, Redis<br/>Prometheus, Grafana, Loki"]
     end
-    
-    subgraph "Chuncheon - Private Subnet"
-        VM3[VM3: Database<br/>PostgreSQL + Redis + MongoDB<br/>1 OCPU, 6GB, 80GB]
+
+    subgraph Private["Chuncheon - Private Subnet"]
+        VM3["VM3<br/>PostgreSQL 14 (host)<br/>Redis"]
     end
-    
-    Cloudflare[Cloudflare DNS & WAF] --> VM1
+
+    CF --> VM1
     VM1 --> VM2
     VM2 --> VM3
 ```
 
-**Osaka Region (Monitoring & Backup):**
-```mermaid
-graph TB
-    subgraph "Osaka - Private Subnet"
-        VM4[VM4: Monitoring<br/>Prometheus + Grafana + Loki<br/>1 OCPU, 6GB, 80GB]
-        VM5[VM5: Backup<br/>Long-term Storage<br/>2 OCPU, 12GB, 70GB]
-        VM6[VM6: Sandbox<br/>Development Environment<br/>1 OCPU, 6GB]
-    end
-    
-    VM4 -.Monitor.-> Chuncheon
-    VM5 -.Backup.-> Chuncheon
-```
+- **VM1** terminates every web domain and serves the built static releases.
+- **VM2** runs the gateway, the auth server, two separately owned services (Wegis and Overlock), and the observability stack. Monitoring was originally planned for a second region but it runs here.
+- **VM3** holds the single production database, PostgreSQL 14 installed on the host rather than in a container. An upgrade is planned before upstream support for this major version ends.
 
-**Cross-Region Communication:**
-- VCN Remote Peering Connection (RPC) between Chuncheon and Osaka
-- Zero data transfer costs (within same OCI tenancy)
-- Main services in Chuncheon minimize cross-region traffic
+### Osaka region
+
+A second region was provisioned in the original design for monitoring and backup. It is no longer part of the running system:
+
+- **VM4** exists but is unconfigured. It is a spare, not a replica and not a disaster recovery target.
+- **VM5 and VM6** were retired and their resources reassigned.
+
+Off-site backup storage is planned but has not been set up yet.
 
 ## Technology Stack
 
-- **Backend (API Gateway, Auth Server)**: Python 3.12+ (FastAPI)
-- **Frontend (Portfolio, Admin UI)**: React (Vite-based)
-- **Infrastructure as Code**: Terraform
-- **Containerization**: Docker, Docker Compose (→ Kubernetes scalable)
-- **Database & Cache**: PostgreSQL, Redis
-- **Monitoring**: Prometheus, Grafana, Loki
-- **DNS & Proxy**: Cloudflare + Nginx Proxy Manager
-- **Cloud / Virtualization**: Oracle Cloud → OpenStack (Home Lab)
+- **Backend**: Python 3.12+ with FastAPI, packaged and locked with uv
+- **Frontend**: React with Vite and TypeScript
+- **Infrastructure as Code**: Terraform on Oracle Cloud Infrastructure
+- **Containers**: Docker and Docker Compose
+- **Data**: PostgreSQL and Redis
+- **Observability**: Prometheus, Grafana, and Loki
+- **Edge**: Cloudflare DNS and proxy in front of Nginx
 
-## Security & Access Control
+## Security and Access Control
 
-- **Public Services Protection**: Cloudflare DNS & Proxy + WAF
-- **Private Subnet Isolation**: External access restricted (VPN/Bastion Host only)
-- **Service Deployment**: Docker Compose-based VM deployment (Kubernetes expansion planned)
+- Public traffic passes through Cloudflare before reaching the Nginx entry point on VM1.
+- The database VM sits in a private subnet and is reached through the public subnet.
+- Deployment is Docker Compose over SSH. There is no automated deployment pipeline yet, so every production change is applied by hand.
+- Hardening of the authentication boundary and of the port exposure on VM2 is in progress. These changes are written but not yet applied to the running servers.
 
-## Development Roadmap
+## Status
 
-### Phase 1: Core Infrastructure ✅
-- [x] Project structure design
-- [x] Docker Compose configuration
-- [x] Terraform infrastructure code
-- [x] API Gateway implementation
-- [x] Auth Server implementation
+**Running in production**
 
-### Phase 2: Frontend Development
-- [ ] React client implementation
-- [ ] Portfolio website
-- [ ] Admin panel
+- Terraform definitions for the Chuncheon region
+- Nginx entry point and the static portfolio site
+- Bifrost API gateway and Bidar authentication server
+- PostgreSQL and Redis
+- Prometheus, Grafana, and Loki on VM2
 
-### Phase 3: Advanced Features
-- [ ] Monitoring system
-- [ ] CI/CD pipeline
-- [ ] Backup system
-- [ ] Performance optimization
+**Implemented but not yet applied to production**
 
-## Future Expansion Plans
+- Authentication boundary fixes in Bidar and Bifrost
+- A reworked VM2 deployment script with rollback tags and health gating
+- Scheduled backups with verification, retention, and failure alerting
+- A merged Nginx baseline with shared configuration snippets
+- The admin dashboard rework that replaces placeholder data with real queries
 
-- **API Gateway (Bifrost)**: Service registration automation, API Key issuance, Rate Limiting
-- **Auth Server (Bidar)**: OIDC integration, Role-based access control
-- **Bantheon**: Project showcase additions, admin dashboard expansion
-- **Baedalus**: Multi-CSP support (easy migration to AWS, Azure)
-- **Bsgard**: OpenStack Neutron-based API wrapper completion for CSP-like VPC functionality
+**Planned**
+
+- PostgreSQL major version upgrade
+- Retirement of the legacy MongoDB instance
+- Continuous deployment, once releases can be identified and rolled back reliably
+- Bsgard and the home lab
+
+## Costs
+
+The infrastructure was designed to fit inside the Oracle Cloud Always Free allowances. Actual billing has not been reconciled against those allowances yet, so this project does not claim to run at zero cost.
 
 ---
 
-*BNGdrasil - Building a personal cloud nation, one service at a time.*
+*BNGdrasil. Building a personal cloud, one service at a time.*
