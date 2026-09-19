@@ -1,12 +1,12 @@
 <p align="center">
-    <img align="top" width="30%" src="/images/BNGdrasil.png" alt="BNGdrasil"/>
+    <img align="top" width="30%" src="https://raw.githubusercontent.com/BNGdrasil/.github/main/images/BNGdrasil.png" alt="BNGdrasil"/>
 </p>
 
 <div align="center">
 
 # BNGdrasil (BNbong + ygGdrasil)
 
-**A personal cloud infrastructure project**
+**개인 클라우드 인프라 프로젝트**
 
 [![Python](https://img.shields.io/badge/Python-3.12+-3776ab?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
@@ -19,133 +19,47 @@
 [![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io)
 [![Nginx](https://img.shields.io/badge/Nginx-009639?style=flat-square&logo=nginx&logoColor=white)](https://nginx.org)
 
-*A personal cloud infrastructure project by [bnbong](https://github.com/bnbong)*
+*[bnbong](https://github.com/bnbong)의 개인 클라우드 인프라 프로젝트입니다*
 
 </div>
 
 ---
 
-## Overview
+## 소개
 
-BNGdrasil is a personal cloud ecosystem that brings together a portfolio site, an API gateway, an authentication server, and the infrastructure code that provisions them. Infrastructure is described with Terraform and the services run as Docker Compose stacks on Oracle Cloud VMs in the Chuncheon region.
+BNGdrasil은 개인 클라우드 인프라 프로젝트입니다. Wegis와 Overlock, ambiw 같은 개인 서비스를 한 인프라 위에서 운영합니다. 인증과 게이트웨이, 데이터베이스, 관측 도구를 모든 서비스가 공유합니다. 구성 요소는 독립된 저장소로 나뉘며, 이름은 북유럽 신화와 그리스 신화에서 따왔습니다.
 
-The project is actively operated, and parts of it are still being built. Where a component is planned rather than running, this page says so.
+## 프로젝트
 
-## Project Naming Convention
+| | 이름 | 역할 |
+|---|---|---|
+| <img width="48" src="https://raw.githubusercontent.com/BNGdrasil/.github/main/images/Bidar.png" alt="Bidar"/> | [Bidar](https://github.com/BNGdrasil/Bidar) | 인증 서버 |
+| <img width="48" src="https://raw.githubusercontent.com/BNGdrasil/.github/main/images/Bifrost.png" alt="Bifrost"/> | [Bifrost](https://github.com/BNGdrasil/Bifrost) | API 게이트웨이 |
+| <img width="48" src="https://raw.githubusercontent.com/BNGdrasil/.github/main/images/Bantheon.png" alt="Bantheon"/> | [Bantheon](https://github.com/BNGdrasil/Bantheon) | 웹 클라이언트와 VM1 Nginx 설정 |
+| <img width="48" src="https://raw.githubusercontent.com/BNGdrasil/.github/main/images/Baedalus.png" alt="Baedalus"/> | [Baedalus](https://github.com/BNGdrasil/Baedalus) | 인프라 코드와 운영 도구 |
+| <img width="48" src="https://raw.githubusercontent.com/BNGdrasil/.github/main/images/Bsgard.png" alt="Bsgard"/> | [Bsgard](https://github.com/BNGdrasil/Bsgard) | 자체 VPC 네트워크 구상 (계획 단계) |
 
-Each sub-project combines **bnbong's name with a figure or place from Norse and Greek mythology**. The umbrella name comes from Yggdrasil, the World Tree.
+## 구조
 
-### Sub-projects
-
-1. **[Baedalus (Infrastructure as Code)](https://github.com/BNGdrasil/Baedalus)**
-   - Terraform code for the Oracle Cloud tenancy: networks, instances, bootstrap scripts, and the deployment and backup tooling that runs against them.
-   - Also holds the deployment baseline that records what is actually running on each VM.
-   - (bnbong + Daedalus, the craftsman of Greek mythology)
-
-2. **[Bifrost (API Gateway)](https://github.com/BNGdrasil/Bifrost)**
-   - FastAPI service that routes requests to registered backend services and exposes the admin API used by the dashboard.
-   - The service registry lives in PostgreSQL. Administrative permissions are verified against Bidar.
-   - (bnbong + Bifröst, the bridge between gods and humans in Norse mythology)
-
-3. **[Bidar (Auth Server)](https://github.com/BNGdrasil/Bidar)**
-   - FastAPI authentication server issuing JWT access tokens, with role based access control and PostgreSQL backed user storage.
-   - API key models exist in the schema, but issuing, verifying, and revoking keys is not finished, so API keys are not a protection mechanism yet.
-   - (bnbong + Víðarr, god of vengeance and silence)
-
-4. **[Bantheon (Web Client and Admin Panel)](https://github.com/BNGdrasil/Bantheon)**
-   - React and Vite frontend: the public portfolio site, the admin dashboard, and the Nginx configuration that serves both.
-   - (bnbong + Pantheon, the temple of all gods)
-
-5. **[Bsgard (Custom VPC)](https://github.com/BNGdrasil/Bsgard)** (*planned, not started*)
-   - An intended wrapper around OpenStack Neutron that would provide VPC-like networking for a future home lab.
-   - The repository is currently empty. Work on it is deferred until there is a real home lab requirement.
-   - (bnbong + Asgard, the realm of the gods)
-
-## Architecture
-
-![BNGdrasil Infrastructure](../images/bngdrasil-infra.png)
-
-> The diagram above shows the original design. The deployment described below is the current one, and the two differ in several places.
-
-### Current deployment (Chuncheon region)
+외부 요청은 Cloudflare를 거쳐 VM1의 Nginx에 도착합니다. Nginx는 정적 사이트를 응답하고 API 요청은 VM2로 넘깁니다. VM2에서는 Bifrost와 Bidar, 개별 서비스가 동작합니다. 데이터는 사설 서브넷 VM3의 PostgreSQL에 저장합니다.
 
 ```mermaid
-graph TB
-    CF[Cloudflare DNS and Proxy]
-
-    subgraph Public["Chuncheon - Public Subnet"]
-        VM1["VM1<br/>Nginx entry point<br/>static sites"]
-        VM2["VM2<br/>Bifrost gateway, Bidar auth<br/>Wegis, Overlock, Redis<br/>Prometheus, Grafana, Loki"]
-    end
-
-    subgraph Private["Chuncheon - Private Subnet"]
-        VM3["VM3<br/>PostgreSQL 14 (host)<br/>Redis"]
-    end
-
-    CF --> VM1
-    VM1 --> VM2
-    VM2 --> VM3
+graph LR
+    CF[Cloudflare] --> VM1[VM1: Nginx, 정적 사이트]
+    VM1 --> VM2[VM2: Bifrost, Bidar, 서비스]
+    VM2 --> VM3[(VM3: PostgreSQL)]
 ```
 
-- **VM1** terminates every web domain and serves the built static releases.
-- **VM2** runs the gateway, the auth server, two separately owned services (Wegis and Overlock), and the observability stack. Monitoring was originally planned for a second region but it runs here.
-- **VM3** holds the single production database, PostgreSQL 14 installed on the host rather than in a container. An upgrade is planned before upstream support for this major version ends.
+## 현재 상태
 
-### Osaka region
+주요 서비스는 운영 중입니다. 2026년 9월부터 전면 보수를 진행하고 있습니다. 인증 강화와 게이트웨이 안정화, 백업과 관측과 CI/CD 정비가 보수의 범위입니다.
 
-A second region was provisioned in the original design for monitoring and backup. It is no longer part of the running system:
+## 기술 스택
 
-- **VM4** exists but is unconfigured. It is a spare, not a replica and not a disaster recovery target.
-- **VM5 and VM6** were retired and their resources reassigned.
-
-Off-site backup storage is planned but has not been set up yet.
-
-## Technology Stack
-
-- **Backend**: Python 3.12+ with FastAPI, packaged and locked with uv
-- **Frontend**: React with Vite and TypeScript
-- **Infrastructure as Code**: Terraform on Oracle Cloud Infrastructure
-- **Containers**: Docker and Docker Compose
-- **Data**: PostgreSQL and Redis
-- **Observability**: Prometheus, Grafana, and Loki
-- **Edge**: Cloudflare DNS and proxy in front of Nginx
-
-## Security and Access Control
-
-- Public traffic passes through Cloudflare before reaching the Nginx entry point on VM1.
-- The database VM sits in a private subnet and is reached through the public subnet.
-- Deployment is Docker Compose over SSH. There is no automated deployment pipeline yet, so every production change is applied by hand.
-- Hardening of the authentication boundary and of the port exposure on VM2 is in progress. These changes are written but not yet applied to the running servers.
-
-## Status
-
-**Running in production**
-
-- Terraform definitions for the Chuncheon region
-- Nginx entry point and the static portfolio site
-- Bifrost API gateway and Bidar authentication server
-- PostgreSQL and Redis
-- Prometheus, Grafana, and Loki on VM2
-
-**Implemented but not yet applied to production**
-
-- Authentication boundary fixes in Bidar and Bifrost
-- A reworked VM2 deployment script with rollback tags and health gating
-- Scheduled backups with verification, retention, and failure alerting
-- A merged Nginx baseline with shared configuration snippets
-- The admin dashboard rework that replaces placeholder data with real queries
-
-**Planned**
-
-- PostgreSQL major version upgrade
-- Retirement of the legacy MongoDB instance
-- Continuous deployment, once releases can be identified and rolled back reliably
-- Bsgard and the home lab
-
-## Costs
-
-The infrastructure was designed to fit inside the Oracle Cloud Always Free allowances. Actual billing has not been reconciled against those allowances yet, so this project does not claim to run at zero cost.
-
----
-
-*BNGdrasil. Building a personal cloud, one service at a time.*
+| 영역 | 사용 기술 |
+|---|---|
+| 백엔드 | Python 3.12, FastAPI, uv |
+| 프런트엔드 | React, TypeScript, Vite |
+| 인프라 | Terraform, Docker Compose, Nginx, Cloudflare |
+| 데이터 | PostgreSQL, Redis |
+| 관측 | Prometheus, Grafana, Loki |
